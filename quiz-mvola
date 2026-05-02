@@ -1,1 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Mvola</title>
+    <style>
+        * {margin:0; padding:0; box-sizing:border-box;}
+        body {font-family:Arial, sans-serif; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px;}
+    .container {background:white; border-radius:20px; padding:30px; max-width:500px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+        h1 {color:#667eea; text-align:center; margin-bottom:10px; font-size:28px;}
+        h2 {color:#333; text-align:center; margin-bottom:20px; font-size:22px;}
+        h3 {color:#333; margin:15px 0; font-size:18px;}
+    .ecran {display:none;}
+    .ecran.active {display:block;}
+        input {width:100%; padding:15px; border:2px solid #ddd; border-radius:10px; font-size:16px; margin:10px 0;}
+        input:focus {outline:none; border-color:#667eea;}
+        button {width:100%; padding:15px; background:#667eea; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin:10px 0; transition:0.3s;}
+        button:hover {background:#5568d3; transform:translateY(-2px);}
+        button:disabled {background:#ccc; cursor:not-allowed; transform:none;}
+    .choix {background:#f5f5f5; padding:15px; margin:10px 0; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:0.2s;}
+    .choix:hover {background:#e8e8e8; border-color:#667eea;}
+    .timer {text-align:center; font-size:24px; color:#e74c3c; font-weight:bold; margin:15px 0;}
+    .score {text-align:center; font-size:20px; margin:20px 0; color:#333;}
+    .info {background:#f0f4ff; padding:15px; border-radius:10px; margin:15px 0; border-left:4px solid #667eea; line-height:1.6;}
+    .erreur {color:#e74c3c; text-align:center; margin:10px 0; font-weight:bold; min-height:20px;}
+    .success {color:#27ae60; font-weight:bold;}
+    .numero-copie {background:#667eea; color:white; padding:10px; border-radius:8px; text-align:center; font-size:20px; font-weight:bold; margin:10px 0; cursor:pointer;}
+    .compteur {display:flex; justify-content:space-around; margin:15px 0; font-size:14px;}
+    .compteur span {color:#667eea; font-weight:bold;}
+    .essais {background:var(--gold);color:var(--dark);padding:8px 14px;border-radius:20px;font-weight:700;text-align:center;margin:10px 0;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 QUIZ MVOLA</h1>
 
+        <div id="ecranAccueil" class="ecran active">
+            <h2>Bienvenue!</h2>
+            <div class="info"><b>500Ar = 2 PARTIES</b><br>Gagné ou perdu = 1 partie consommée<br>15 questions - 10s par question<br>10/15 = 1200Ar | 13/15 = 2000Ar | 15/15 = 5000Ar</div>
+            <div class="essais" id="essaisRestants" style="display:none">Essais restants: <span id="nbEssais">0</span>/2</div>
+            <input type="text" id="numero" placeholder="034 XX XXX XX" inputmode="numeric" pattern="[0-9]*" maxlength="10">
+            <button onclick="allerPaiement('DEBUT', 500)" id="btnCommencer">COMMENCER - 500Ar</button>
+            <button onclick="jouerAvecEssai()" id="btnJouerEssai" style="display:none;background:#27ae60">JOUER - Essai restant</button>
+        </div>
+
+        <div id="ecranPaiement" class="ecran">
+            <h2>💰 Paiement Mvola</h2>
+            <div class="info"><b>Action:</b> <span id="typeAction">DEBUT</span><br><b>Montant:</b> <span id="montantPaiement">500</span> Ar<br><b>Tu auras:</b> 2 parties</div>
+            <div class="info"><b>1.</b> Ouvre ton app Mvola<br><b>2.</b> Envoie <b><span id="montantInfo">500</span> Ar</b> au:<br><div class="numero-copie" onclick="copierNumero()">📱 038 63 164 68</div><b>3.</b> Motif: <b id="numeroJoueurInfo"></b><br><b>4.</b> Envoie-moi le SMS reçu sur WhatsApp</div>
+            <button onclick="changerEcran('ecranCode')">J'AI PAYÉ - ENTRER CODE</button>
+            <button onclick="retourAccueil()">ANNULER</button>
+        </div>
+
+        <div id="ecranCode" class="ecran">
+            <h2>🔑 Entre ton code</h2>
+            <div class="info">Tu recevras le code par WhatsApp après vérification du paiement<br><b>500Ar = 2 parties garanties</b></div>
+            <input type="text" id="code" placeholder="EX: WIN5001" style="text-transform:uppercase">
+            <div class="erreur" id="erreurCode"></div>
+            <button onclick="verifierCode()">VALIDER</button>
+            <button onclick="changerEcran('ecranPaiement')">RETOUR</button>
+        </div>
+
+        <div id="ecranRetard" class="ecran">
+            <h2>⏰ Trop tard!</h2>
+            <div class="info"><b>On a déjà les 5 gagnants.</b><br>Reviens après 2 jours avec ton code.<br><br>Ton code reste valide 2 jours.<br>Tu peux rejouer pour le fun mais sans gain.</div>
+            <button onclick="retourAccueil()">REVIENS DEMAIN</button>
+            <button onclick="jouerPourFun()">JOUER POUR LE FUN</button>
+        </div>
+
+        <div id="ecranGagnant" class="ecran">
+            <h2>🎉 FÉLICITATIONS!</h2>
+            <div class="info" id="texteGagnant"><b>Bravo! Vous avez gagné la partie.</b><br><br>Votre argent sera bientôt sur votre compte Mvola.<br><b>30 minutes maximum.</b><br><br>Merci d'avoir joué!</div>
+            <button onclick="partager()" style="background:#1877f2">📘 PARTAGER SUR FACEBOOK</button>
+            <button onclick="partagerWhatsapp()" style="background:#25d366">📱 PARTAGER WHATSAPP</button>
+            <button onclick="retourAccueil()">ACCUEIL</button>
+        </div>
+
+        <div id="ecranQuiz" class="ecran">
+            <div class="compteur"><div>Question: <span id="numQuestion">1</span>/15</div><div>Score: <span id="scoreActuel">0</span></div><div>Essai: <span id="essaiActuel">1</span>/2</div></div>
+            <div class="timer">⏱️ <span id="timer">10</span>s</div>
+            <h3 id="question"></h3>
+            <div id="choix"></div>
+            <button onclick="payerSkip()" id="btnSkip">SKIP - 2000Ar (<span id="compteurSkip">2</span> restants)</button>
+        </div>
+
+        <div id="ecranFin" class="ecran">
+            <h2>Jeu Terminé!</h2>
+            <div id="messageFin" class="info"></div>
+            <p class="score">Score final : <b id="scoreFinal"></b> / 15</p>
+            <div class="compteur"><div>Essais restants: <span id="essaisRestantsFin">0</span></div></div>
+            <button onclick="rejouerGratuit()" id="btnRejouerGratuit">REJOUER GRATUIT</button>
+            <button onclick="allerPaiement('DEBUT', 500)" id="btnPayerNouveau">PAYER 500Ar - 2 NOUVEAUX ESSAIS</button>
+            <button onclick="retourAccueil()">ACCUEIL</button>
+        </div>
+    </div>
+
+    <script>
+        const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxVpln-xJpiC5tOPKANy_QiaW9i3bDGKJDBoxzOt3Fjk8gqKxRGr_qhW1VKsSs4I7UX/exec';
+        const NUMERO_MVOLA = '0386316468';
+
+        let QUESTIONS_UTILISEES = [];
+        let QUESTIONS = [];
+        let QUIZ_ACTUEL = [];
+        let QUESTIONS_CACHE = null;
+
+        let questionActuelle = 0;
+        let score = 0;
+        let timer = null;
+        let tempsRestant = 10;
+        let numeroJoueur = '';
+        let actionEnCours = 'DEBUT';
+        let montantActuel = 500;
+        let questionResume = 0;
+        let compteurSkip = 2;
+        let windowModeJeu = 'normal';
+        let codeUtiliseActuel = '';
+
+        // NOUVEAU : Gestion essais
+        let essaisRestants = 0;
+        let partieEnCours = 0;
+
+        function changerEcran(id) {
+            document.querySelectorAll('.ecran').forEach(e => e.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            updateAffichageEssais();
+        }
+
+        function updateAffichageEssais(){
+            let e = document.getElementById('essaisRestants');
+            let btnCommencer = document.getElementById('btnCommencer');
+            let btnJouer = document.getElementById('btnJouerEssai');
+
+            if(essaisRestants > 0){
+                e.style.display = 'block';
+                document.getElementById('nbEssais').innerText = essaisRestants;
+                btnCommencer.style.display = 'none';
+                btnJouer.style.display = 'block';
+            } else {
+                e.style.display = 'none';
+                btnCommencer.style.display = 'block';
+                btnJouer.style.display = 'none';
+            }
+        }
+
+        function retourAccueil() {
+            changerEcran('ecranAccueil');
+            document.getElementById('numero').value = '';
+            document.getElementById('code').value = '';
+            document.getElementById('erreurCode').innerText = '';
+            codeUtiliseActuel = '';
+            chargerEssais();
+        }
+
+        function chargerEssais(){
+            let data = localStorage.getItem('essais_' + numeroJoueur);
+            if(data){
+                let obj = JSON.parse(data);
+                // Reset si + de 24h
+                if(Date.now() - obj.timestamp > 86400000){
+                    essaisRestants = 0;
+                } else {
+                    essaisRestants = obj.essais;
+                }
+            } else {
+                essaisRestants = 0;
+            }
+            updateAffichageEssais();
+        }
+
+        function sauverEssais(){
+            localStorage.setItem('essais_' + numeroJoueur, JSON.stringify({
+                essais: essaisRestants,
+                timestamp: Date.now()
+            }));
+        }
+
+        function jouerAvecEssai(){
+            if(essaisRestants <= 0){
+                alert('Plus d\'essai. Paie 500Ar pour 2 nouvelles parties');
+                return;
+            }
+            lancerQuiz(0);
+        }
+
+        function rejouerGratuit(){
+            if(essaisRestants <= 0){
+                alert('Plus d\'essai gratuit. Paie 500Ar');
+                allerPaiement('DEBUT', 500);
+                return;
+            }
+            lancerQuiz(0);
+        }
+
+        function allerPaiement(type, montant) {
+            numeroJoueur = document.getElementById('numero').value.replace(/[\s\-\.]/g, '');
+            if (numeroJoueur.length < 9) {
+                alert('Numéro invalide. Exemple: 0341234567');
+                return;
+            }
+            if(type!== 'DEBUT') {
+                document.getElementById('code').value = '';
+                document.getElementById('erreurCode').innerText = '';
+            }
+            actionEnCours = type;
+            montantActuel = montant;
+            document.getElementById('montantPaiement').innerText = montant;
+            document.getElementById('montantInfo').innerText = montant;
+            document.getElementById('typeAction').innerText = type;
+            document.getElementById('numeroJoueurInfo').innerText = numeroJoueur;
+
+            fetch(URL_APPS_SCRIPT, {
+                method: 'POST',
+                body: JSON.stringify({action: 'demande_paiement', type: type, numero: numeroJoueur, montant: montant, question: questionActuelle, date: new Date().toLocaleString('fr-FR')})
+            });
+            changerEcran('ecranPaiement');
+        }
+
+        function copierNumero() {
+            navigator.clipboard.writeText(NUMERO_MVOLA);
+            alert('Numéro copié: ' + NUMERO_MVOLA);
+        }
+
+        async function verifierCode() {
+    const code = document.getElementById('code').value.trim();
+    const erreurDiv = document.getElementById('erreurCode');
+    erreurDiv.innerText = 'Vérification...';
+
+    if (!code) {
+        erreurDiv.innerText = 'Entre le code reçu';
+        return;
+    }
+    if((actionEnCours === 'SKIP' || actionEnCours === 'REJOUER' || actionEnCours === 'CONTINUE') && code === codeUtiliseActuel) {
+        erreurDiv.innerText = 'Nouveau paiement = Nouveau code obligatoire';
+        return;
+    }
+    try {
+        const response = await fetch(`${URL_APPS_SCRIPT}?code=${encodeURIComponent(code)}&numero=${encodeURIComponent(numeroJoueur)}`);
+        const data = await response.json();
+        if(data.error) {
+            erreurDiv.innerText = data.msg;
+            return;
+        }
+        if (data.valide) {
+            windowModeJeu = data.mode;
+            codeUtiliseActuel = code;
+
+            // CORRIGÉ : if au lieu de iif
+            if(actionEnCours === 'DEBUT'){
+                essaisRestants = 2;
+                sauverEssais();
+                localStorage.setItem('questions_utilisees_' + numeroJoueur, '[]'); // ← RESET QUESTIONS
+            }
+
+            if(data.mode === 'retard') {
+                changerEcran('ecranRetard');
+            } else {
+                if (actionEnCours === 'DEBUT' || actionEnCours === 'REJOUER') {
+                    await lancerQuiz(0);
+                } else if (actionEnCours === 'SKIP' || actionEnCours === 'CONTINUE') {
+                    await lancerQuiz(questionResume);
+                }
+            }
+        } else {
+            if(data.motif === 'epuise') erreurDiv.innerText = 'Code épuisé. 2 utilisations max.';
+            else if(data.motif === 'utilise') erreurDiv.innerText = 'Code déjà utilisé.';
+            else if(data.motif === 'deja_joue') erreurDiv.innerText = 'Tu as déjà joué aujourd\'hui. Reviens demain 6h';
+            else erreurDiv.innerText = 'Code invalide ou expiré';
+        }
+    } catch(e) {
+        erreurDiv.innerText = 'Erreur connexion';
+    }
+}
+
+        function jouerPourFun() {lancerQuiz(0);}
+
+        async function chargerQuestions(){
+            if(QUESTIONS_CACHE && Date.now() - QUESTIONS_CACHE.time < 300000){
+                QUESTIONS = QUESTIONS_CACHE.data;
+                return true;
+            }
+            try {
+                let res = await fetch(URL_APPS_SCRIPT + '?action=getQuestions');
+                QUESTIONS = await res.json();
+                if(!Array.isArray(QUESTIONS) || QUESTIONS.length < 15) throw 'Pas assez de questions';
+                QUESTIONS_CACHE = {data: QUESTIONS, time: Date.now()};
+                return true;
+            } catch(e) {
+                alert('Erreur chargement questions: ' + e);
+                return false;
+            }
+        }
+
+       function melangerQuestions(){
+    // Récupère les questions déjà utilisées ce cycle de 2 essais
+    let dejaJouees = JSON.parse(localStorage.getItem('questions_utilisees_' + numeroJoueur) || '[]');
+
+    // Filtre pour enlever les questions déjà posées
+    let disponibles = QUESTIONS.filter(q =>!dejaJouees.includes(q.q));
+
+    // Si moins de 15 restantes, on reset la mémoire et on reprend tout
+    if(disponibles.length < 15){
+        disponibles = [...QUESTIONS];
+        dejaJouees = [];
+        localStorage.setItem('questions_utilisees_' + numeroJoueur, '[]');
+    }
+
+    // Mélange les questions disponibles
+    for(let i = disponibles.length - 1; i > 0; i--){
+        let j = Math.floor(Math.random() * (i + 1));
+        [disponibles[i], disponibles[j]] = [disponibles[j], disponibles[i]];
+    }
+
+    let selection = disponibles.slice(0, 15);
+
+    // Marque ces 15 questions comme utilisées
+    let nouvelles = selection.map(q => q.q);
+    dejaJouees.push(...nouvelles);
+    localStorage.setItem('questions_utilisees_' + numeroJoueur, JSON.stringify(dejaJouees));
+
+    return selection;
+}
+
+        async function lancerQuiz(indexDepart) {
+            // Vérifie essai dispo
+            if(essaisRestants <= 0 && actionEnCours!== 'SKIP' && actionEnCours!== 'CONTINUE'){
+                alert('Plus d\'essai. Paie 500Ar pour 2 parties');
+                allerPaiement('DEBUT', 500);
+                return;
+            }
+
+            document.getElementById('erreurCode').innerText = 'Chargement questions...';
+            let ok = await chargerQuestions();
+            document.getElementById('erreurCode').innerText = '';
+            if(!ok) return;
+
+            questionActuelle = indexDepart;
+            if (indexDepart === 0) {
+    score = 0;
+    partieEnCours++;
+    essaisRestants--; // Consomme 1 essai
+    sauverEssais();
+    consommerCode(); // ← AJOUTE ÇA : marque le code comme utilisé 1x dans Sheet
+}
+
+            QUIZ_ACTUEL = melangerQuestions();
+            afficherQuestion();
+            changerEcran('ecranQuiz');
+        }
+
+        function afficherQuestion() {
+    if (questionActuelle >= QUIZ_ACTUEL.length) {terminerQuiz(); return;}
+    const q = QUIZ_ACTUEL[questionActuelle];
+
+    document.getElementById('numQuestion').innerText = questionActuelle + 1;
+    document.getElementById('scoreActuel').innerText = score;
+    document.getElementById('essaiActuel').innerText = 3 - essaisRestants;
+    document.getElementById('question').innerText = q.q;
+    const choixDiv = document.getElementById('choix');
+    choixDiv.innerHTML = '';
+
+    // Mélange en gardant l'index original
+    let reponsesMelangees = q.r.map((rep, idx) => ({rep: rep, original: idx}));
+    reponsesMelangees.sort(() => Math.random() - 0.5);
+
+    reponsesMelangees.forEach((obj) => {
+        const div = document.createElement('div');
+        div.className = 'choix';
+        div.innerText = obj.rep;
+        div.dataset.original = obj.original; // ← Important pour les couleurs
+        div.onclick = () => repondre(obj.original, q.c);
+        choixDiv.appendChild(div);
+    });
+    document.getElementById('btnSkip').disabled = compteurSkip <= 0;
+    document.getElementById('compteurSkip').innerText = compteurSkip;
+    startTimer();
+}
+
+function repondre(indexChoisi, indexBonne) {
+    clearInterval(timer);
+    const choixElements = document.querySelectorAll('.choix');
+    choixElements.forEach(el => el.onclick = null);
+
+    // Colorie selon l'index original stocké dans dataset
+    choixElements.forEach((el) => {
+        let originalIdx = parseInt(el.dataset.original);
+
+        if (originalIdx === indexBonne) {
+            el.style.background = '#27ae60'; // VERT = bonne réponse
+            el.style.color = 'white';
+            el.style.border = '2px solid #1e8449';
+        } else if (originalIdx === indexChoisi && indexChoisi!== indexBonne) {
+            el.style.background = '#e74c3c'; // ROUGE = ton choix faux
+            el.style.color = 'white';
+            el.style.border = '2px solid #c0392b';
+        }
+    });
+
+    if (indexChoisi === indexBonne) {
+        score++;
+        document.getElementById('scoreActuel').innerText = score;
+    }
+    questionActuelle++;
+    setTimeout(afficherQuestion, 1500);
+}
+function startTimer() {
+            tempsRestant = 10;
+            document.getElementById('timer').innerText = tempsRestant;
+            clearInterval(timer);
+            timer = setInterval(() => {
+                tempsRestant--;
+                document.getElementById('timer').innerText = tempsRestant;
+                if (tempsRestant <= 0) {clearInterval(timer); repondre(-1, -1);}
+            }, 1000);
+        }
+
+function repondre(indexChoisi, indexBonne) {
+    clearInterval(timer);
+    const choixElements = document.querySelectorAll('.choix');
+    choixElements.forEach(el => el.onclick = null);
+
+    // On récupère l'index original de chaque div affichée
+    choixElements.forEach((el) => {
+        let originalIdx = parseInt(el.dataset.original);
+
+        if (originalIdx === indexBonne) {
+            el.style.background = '#27ae60';
+            el.style.color = 'white';
+        } else if (originalIdx === indexChoisi && indexChoisi !== indexBonne) {
+            el.style.background = '#e74c3c';
+            el.style.color = 'white';
+        }
+    });
+
+    if (indexChoisi === indexBonne) {
+        score++;
+        document.getElementById('scoreActuel').innerText = score; // ← Force update direct
+    }
+    questionActuelle++;
+    setTimeout(afficherQuestion, 1500);
+}
+
+        function payerSkip() {
+            if (compteurSkip <= 0) {alert('Plus de SKIP disponible'); return;}
+            compteurSkip--;
+            questionResume = questionActuelle + 1;
+            allerPaiement('SKIP', 2000);
+        }
+
+        function terminerQuiz() {
+            document.getElementById('scoreFinal').innerText = score;
+            document.getElementById('essaisRestantsFin').innerText = essaisRestants;
+            updateCompteurs();
+
+            if(windowModeJeu === 'retard') {
+                changerEcran('ecranFin');
+                document.getElementById('messageFin').innerHTML = 'Partie finie! <b>Reviens dans 2 jours</b> pour tenter de gagner.';
+                return;
+            }
+
+            if(score >= 10) {
+                let gain = 0;
+                if(score === 15) gain = 5000;
+                else if(score >= 13) gain = 2000;
+                else if(score >= 10) gain = 1200;
+
+                fetch(URL_APPS_SCRIPT, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({action: 'enregistrer_gagnant', numero: numeroJoueur, score: score, gain: gain})
+                });
+                changerEcran('ecranGagnant');
+                document.getElementById('texteGagnant').innerHTML =
+                    `<b>Bravo! Score ${score}/15</b><br><br>Tu gagnes <b>${gain}Ar</b><br>Virement Mobile Money en 30min max.<br><br>Essais restants: ${essaisRestants}/2<br><br>Merci d'avoir joué!`;
+            } else {
+                changerEcran('ecranFin');
+                document.getElementById('messageFin').innerHTML = score >= 8?
+                    `<span class="success">Pas mal!</span> Il faut 10/15 minimum pour gagner. Retente!<br><br>Essais restants: ${essaisRestants}/2` :
+                    `Courage! Il faut 10/15 minimum. Tu feras mieux la prochaine fois!<br><br>Essais restants: ${essaisRestants}/2`;
+
+                document.getElementById('btnRejouerGratuit').style.display = essaisRestants > 0? 'block' : 'none';
+                document.getElementById('btnPayerNouveau').style.display = essaisRestants === 0? 'block' : 'none';
+            }
+        }
+
+        function updateCompteurs() {
+            // Plus besoin de compteurRejouer/Continue
+        }
+
+        function partager() {
+            const url = window.location.href;
+            const texte = `Je viens de jouer au Quiz Mvola! Mon score: ${score}/15 🔥 Tente ta chance!`;
+            const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(texte)}`;
+            window.open(fbUrl, '_blank', 'width=600,height=400');
+        }
+
+        function partagerWhatsapp() {
+            const url = window.location.href;
+            const texte = `Je viens de jouer au Quiz Mvola! Mon score: ${score}/15 🔥 Tente ta chance! ${url}`;
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(texte)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Init
+        chargerEssais();
+        async function consommerCode(){
+    if(!codeUtiliseActuel) return;
+    await fetch(URL_APPS_SCRIPT, {
+        method: 'POST',
+        body: JSON.stringify({
+            action: 'consommer_code', 
+            code: codeUtiliseActuel, 
+            numero: numeroJoueur
+        })
+    });
+}
+    </script>
+</body>
+</html>
