@@ -181,7 +181,7 @@
          </footer>
 </div>
     <script>
-        const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxVpln-xJpiC5tOPKANy_QiaW9i3bDGKJDBoxzOt3Fjk8gqKxRGr_qhW1VKsSs4I7UX/exec';
+        const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzQQ0diLPTHzB7nZboyUahGIQnf7d8OFU8UKi6X-euCw0GOBHFaG_xCCC7YnI-xi3G4/exec';
         const NUMERO_MVOLA = '0386316468';
 
         let QUESTIONS_UTILISEES = [];
@@ -306,57 +306,35 @@
             alert('Numéro copié: ' + NUMERO_MVOLA);
         }
 
-        async function verifierCode() {
-    const code = document.getElementById('code').value.trim();
-    const erreurDiv = document.getElementById('erreurCode');
-    erreurDiv.innerText = 'Vérification...';
+       async function verifierCode() {
+    const code = document.getElementById('codeInput').value.trim();
 
-    if (!code) {
-        erreurDiv.innerText = 'Entre le code reçu';
+    if(!code) {
+        alert('Entre le code reçu par WhatsApp');
         return;
     }
-    if((actionEnCours === 'SKIP' || actionEnCours === 'REJOUER' || actionEnCours === 'CONTINUE') && code === codeUtiliseActuel) {
-        erreurDiv.innerText = 'Nouveau paiement = Nouveau code obligatoire';
-        return;
-    }
+
+    // ON ENVOIE SEULEMENT LE CODE DANS L'URL
+    const url = `https://script.google.com/macros/s/TON_ID_DEPLOIEMENT/exec?code=${code}`;
+
     try {
-        const response = await fetch(`${URL_APPS_SCRIPT}?code=${encodeURIComponent(code)}&numero=${encodeURIComponent(numeroJoueur)}`);
+        const response = await fetch(url);
         const data = await response.json();
-        if(data.error) {
-            erreurDiv.innerText = data.msg;
-            return;
-        }
-        if (data.valide) {
-            windowModeJeu = data.mode;
-            codeUtiliseActuel = code;
 
-            // CORRIGÉ : if au lieu de iif
-            if(actionEnCours === 'DEBUT'){
-                essaisRestants = 2;
-                sauverEssais();
-                localStorage.setItem('questions_utilisees_' + numeroJoueur, '[]'); // ← RESET QUESTIONS
-            }
-
-            if(data.mode === 'retard') {
-                changerEcran('ecranRetard');
-            } else {
-                if (actionEnCours === 'DEBUT' || actionEnCours === 'REJOUER') {
-                    await lancerQuiz(0);
-                } else if (actionEnCours === 'SKIP' || actionEnCours === 'CONTINUE') {
-                    await lancerQuiz(questionResume);
-                }
-            }
+        if(data.valide) {
+            document.getElementById('ecranCode').style.display = 'none';
+            commencerQuiz(); // Ta fonction qui lance le quiz
+        } else if(data.motif === 'epuise') {
+            alert('Ce code a déjà été utilisé 2 fois');
+        } else if(data.motif === 'invalide') {
+            alert('Code invalide. Vérifie le code reçu');
         } else {
-            if(data.motif === 'epuise') erreurDiv.innerText = 'Code épuisé. 2 utilisations max.';
-            else if(data.motif === 'utilise') erreurDiv.innerText = 'Code déjà utilisé.';
-            else if(data.motif === 'deja_joue') erreurDiv.innerText = 'Tu as déjà joué aujourd\'hui. Reviens demain 6h';
-            else erreurDiv.innerText = 'Code invalide ou expiré';
+            alert(data.msg || 'Quiz fermé pour le moment');
         }
-    } catch(e) {
-        erreurDiv.innerText = 'Erreur connexion';
+    } catch(error) {
+        alert('Erreur de connexion. Réessaie');
     }
 }
-
         function jouerPourFun() {lancerQuiz(0);}
 
         async function chargerQuestions(){
