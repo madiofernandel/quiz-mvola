@@ -7,6 +7,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Mvola</title>
     <style>
+    * {margin:0; padding:0; box-sizing:border-box;}
+    body {
+        font-family:Arial, sans-serif; 
+        background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        min-height:100vh; 
+        padding:20px 20px 0 20px;
+    }
+    .wrapper {
+        min-height:100vh;
+        display:flex; 
+        flex-direction:column;
+        justify-content:center; 
+        align-items:center;
+    }
+    .container {
+        background:white; 
+        border-radius:20px; 
+        padding:30px; 
+        max-width:500px; 
+        width:100%; 
+        box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {color:#667eea; text-align:center; margin-bottom:10px; font-size:28px;}
+    h2 {color:#333; text-align:center; margin-bottom:20px; font-size:22px;}
+    h3 {color:#333; margin:15px 0; font-size:18px;}
+    .ecran {display:none;}
+    .ecran.active {display:block;}
+    input {width:100%; padding:15px; border:2px solid #ddd; border-radius:10px; font-size:16px; margin:10px 0;}
+    input:focus {outline:none; border-color:#667eea;}
+    button {width:100%; padding:15px; background:#667eea; color:white; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; margin:10px 0; transition:0.3s;}
+    button:hover {background:#5568d3; transform:translateY(-2px);}
+    button:disabled {background:#ccc; cursor:not-allowed; transform:none;}
+    .choix {background:#f5f5f5; padding:15px; margin:10px 0; border-radius:10px; cursor:pointer; border:2px solid transparent; transition:0.2s;}
+    .choix:hover {background:#e8e8e8; border-color:#667eea;}
+    .timer {text-align:center; font-size:24px; color:#e74c3c; font-weight:bold; margin:15px 0;}
+    .score {text-align:center; font-size:20px; margin:20px 0; color:#333;}
+    .info {background:#f0f4ff; padding:15px; border-radius:10px; margin:15px 0; border-left:4px solid #667eea; line-height:1.6;}
+    .erreur {color:#e74c3c; text-align:center; margin:10px 0; font-weight:bold; min-height:20px;}
+    .success {color:#27ae60; font-weight:bold;}
+    .numero-copie {background:#667eea; color:white; padding:10px; border-radius:8px; text-align:center; font-size:20px; font-weight:bold; margin:10px 0; cursor:pointer;}
+    .compteur {display:flex; justify-content:space-around; margin:15px 0; font-size:14px;}
+    .compteur span {color:#667eea; font-weight:bold;}
+    .essais {background:#FFD700; color:#333; padding:8px 14px; border-radius:20px; font-weight:700; text-align:center; margin:10px 0;}
+    footer {width:100%; text-align:center; font-size:12px; padding:25px 10px; color:#fff; margin-top:auto;}
         * {margin:0; padding:0; box-sizing:border-box;}
         body {font-family:Arial, sans-serif; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px;}
     .container {background:white; border-radius:20px; padding:30px; max-width:500px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.3);}
@@ -96,14 +140,22 @@
             <button onclick="retourAccueil()">ACCUEIL</button>
         </div>
     </div>
-     <footer style="width:100%; text-align:center; font-size:12px; padding:20px 10px; color:#fff; margin-top:30px;">
-  <div style="max-width:400px; margin:0 auto;">
-    <a href="#regles" style="color:#fff; text-decoration:underline;">Règles du jeu</a> | 
-    <a href="#contact" style="color:#fff; text-decoration:underline;">Contact : 038 63 164 68</a> | 
-    <a href="#confidentialite" style="color:#fff; text-decoration:underline;">Confidentialité</a>
-    <p style="margin-top:10px; margin-bottom:0;">© 2026 Quiz MVola - Antananarivo</p>
-  </div>
-</footer>
+    <div class="wrapper">
+        <div class="container">
+            ... tout ton contenu quiz ici ...
+        </div>
+        
+        <footer>
+            <a href="#regles" style="color:#fff; text-decoration:underline;">Règles du jeu</a> | 
+            <a href="#contact" style="color:#fff; text-decoration:underline;">Contact : 038 63 164 68</a> | 
+            <a href="#confidentialite" style="color:#fff; text-decoration:underline;">Confidentialité</a>
+            <p style="margin-top:10px; margin-bottom:0;">© 2026 Quiz MVola - Antananarivo</p>
+        </footer>
+    </div>
+
+<script>
+... ton JS ...
+</script>
 
     <script>
         const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxVpln-xJpiC5tOPKANy_QiaW9i3bDGKJDBoxzOt3Fjk8gqKxRGr_qhW1VKsSs4I7UX/exec';
