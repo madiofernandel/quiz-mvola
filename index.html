@@ -53,7 +53,11 @@
     .essais {background:#FFD700; color:#333; padding:8px 14px; border-radius:20px; font-weight:700; text-align:center; margin:10px 0;}
     footer {width:100%; text-align:center; font-size:12px; padding:25px 10px; color:#fff; margin-top:auto;}
         * {margin:0; padding:0; box-sizing:border-box;}
-        body {font-family:Arial, sans-serif; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px;}
+        body {
+    font-family:Arial, sans-serif; 
+    background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    margin:0;
+}
     .container {background:white; border-radius:20px; padding:30px; max-width:500px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.3);}
         h1 {color:#667eea; text-align:center; margin-bottom:10px; font-size:28px;}
         h2 {color:#333; text-align:center; margin-bottom:20px; font-size:22px;}
@@ -79,24 +83,32 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎮 QUIZ MVOLA</h1>
+    <div style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+        
+        <div class="container">
+            <h1>🎮 QUIZ MVOLA</h1>
 
-        <div id="ecranAccueil" class="ecran active">
-            <h2>Bienvenue!</h2>
-            <div class="info"><b>500Ar = 2 PARTIES</b><br>Gagné ou perdu = 1 partie consommée<br>15 questions - 10s par question<br>10/15 = 1200Ar | 13/15 = 2000Ar | 15/15 = 5000Ar</div>
-            <div class="essais" id="essaisRestants" style="display:none">Essais restants: <span id="nbEssais">0</span>/2</div>
-            <input type="text" id="numero" placeholder="034 XX XXX XX" inputmode="numeric" pattern="[0-9]*" maxlength="10">
-            <button onclick="allerPaiement('DEBUT', 500)" id="btnCommencer">COMMENCER - 500Ar</button>
-            <button onclick="jouerAvecEssai()" id="btnJouerEssai" style="display:none;background:#27ae60">JOUER - Essai restant</button>
+            <div id="ecranAccueil" class="ecran active">
+                <h2>Bienvenue!</h2>
+                <div class="info"><b>500Ar = 2 PARTIES</b><br>Gagné ou perdu = 1 partie consommée<br>15 questions - 10s par question<br>10/15 = 1200Ar | 13/15 = 2000Ar | 15/15 = 5000Ar</div>
+                <div class="essais" id="essaisRestants" style="display:none">Essais restants: <span id="nbEssais">0</span>/2</div>
+                <input type="text" id="numero" placeholder="034 XX XXX XX" inputmode="numeric" pattern="[0-9]*" maxlength="10">
+                <button onclick="allerPaiement('DEBUT', 500)" id="btnCommencer">COMMENCER - 500Ar</button>
+                <button onclick="jouerAvecEssai()" id="btnJouerEssai" style="display:none;background:#27ae60">JOUER - Essai restant</button>
+            </div>
+
+            ... TOUS TES AUTRES ÉCRANS ICI ...
+
         </div>
-        <footer>
+        
+        <footer style="width:100%; max-width:500px; text-align:center; font-size:12px; padding:25px 10px 15px 10px; color:#fff;">
             <a href="#regles" style="color:#fff; text-decoration:underline;">Règles du jeu</a> | 
             <a href="#contact" style="color:#fff; text-decoration:underline;">Contact : 038 63 164 68</a> | 
             <a href="#confidentialite" style="color:#fff; text-decoration:underline;">Confidentialité</a>
             <p style="margin-top:10px; margin-bottom:0;">© 2026 Quiz MVola - Antananarivo</p>
         </footer>
-        </div>
+        
+    </div>
 
         <div id="ecranPaiement" class="ecran">
             <h2>💰 Paiement Mvola</h2>
