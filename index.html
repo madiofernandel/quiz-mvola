@@ -77,9 +77,9 @@
 </head>
 <body>
     <div style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
-        
+    <div class="wrapper">
         <div class="container">
-            <h1>🎮 QUIZ MVOLA</h1>
+             <h1>🎮 QUIZ MVOLA</h1>
 
             <div id="ecranAccueil" class="ecran active">
                 <h2>Bienvenue!</h2>
@@ -87,16 +87,7 @@
                 <div class="essais" id="essaisRestants" style="display:none">Essais restants: <span id="nbEssais">0</span>/2</div>
                 <input type="text" id="numero" placeholder="034 XX XXX XX" inputmode="numeric" pattern="[0-9]*" maxlength="10">
                 <button onclick="allerPaiement('DEBUT', 500)" id="btnCommencer">COMMENCER - 500Ar</button>
-                <button onclick="jouerAvecEssai()" id="btnJouerEssai" style="display:none;background:#27ae60">JOUER - Essai restant</button>
-            </div>
-
-        </div>
-        
-    </div>
-  <body>
-    <div class="wrapper">
-        <div class="container">
-            ... tout ton contenu quiz ici ...
+                <button onclick="jouerAvecEssai()" id="btnJouerEssai" style="display:none;background:#27ae60">JOUER - Essai restant</button> 
         </div>
         
         <footer>
