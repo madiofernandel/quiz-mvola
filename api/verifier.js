@@ -1,12 +1,12 @@
 export default async function handler(req, res) {
-  const { code } = req.query;
-  
+  const { code, numero } = req.query; // On récupère numero aussi
+
   if (!code) {
     return res.status(400).json({ valide: false, motif: 'vide' });
   }
 
-  const url = `https://script.google.com/macros/s/AKfycbyDAnKi3iEoDErIkqOYepNOJmJOeoCr348D3B0gq7TJOdoamdoqIy4ayJEn7B-kSMQ/exec?code=${code}`;
-  
+  const url = `https://script.google.com/macros/s/AKfycbyDAnKi3iEoDErIkqOYepNOJmJOeoCr348D3B0gq7TJOdoamdoqIy4ayJEn7B-kSMQ/exec?code=${code}&numero=${numero}`;
+
   try {
     const response = await fetch(url);
     const data = await response.json();
