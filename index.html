@@ -306,8 +306,13 @@
             alert('Numéro copié: ' + NUMERO_MVOLA);
         }
 
-       async function verifierCode() {
-    const code = document.getElementById('codeInput').value.trim();
+     async function verifierCode() {
+    const code = document.getElementById('code'); // ou 'code' selon ton input
+    if (!code) {
+        alert('Erreur: champ code introuvable');
+        return;
+    }
+    const code = code.value.trim();
 
     if(!code) {
         alert('Entre le code reçu par WhatsApp');
@@ -315,7 +320,7 @@
     }
 
     // ON ENVOIE SEULEMENT LE CODE DANS L'URL
-    const url = `https://script.google.com/macros/s/TON_ID_DEPLOIEMENT/exec?code=${code}`;
+    const url = `${URL_APPS_SCRIPT}?code=${encodeURIComponent(code)}`;
 
     try {
         const response = await fetch(url);
@@ -323,7 +328,7 @@
 
         if(data.valide) {
             document.getElementById('ecranCode').style.display = 'none';
-            commencerQuiz(); // Ta fonction qui lance le quiz
+            commencerQuiz(); 
         } else if(data.motif === 'epuise') {
             alert('Ce code a déjà été utilisé 2 fois');
         } else if(data.motif === 'invalide') {
@@ -333,6 +338,7 @@
         }
     } catch(error) {
         alert('Erreur de connexion. Réessaie');
+        console.log(error);
     }
 }
         function jouerPourFun() {lancerQuiz(0);}
