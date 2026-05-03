@@ -305,8 +305,7 @@
             navigator.clipboard.writeText(NUMERO_MVOLA);
             alert('Numéro copié: ' + NUMERO_MVOLA);
         }
-
-     async function verifierCode() {
+    async function verifierCode(codeGagnant, numeroJoueur) {
     const codeElement = document.getElementById('code');
     const erreurDiv = document.getElementById('erreurCode');
     
@@ -324,7 +323,12 @@
         return;
     }
 
-    const url = `${URL_APPS_SCRIPT}?code=${encodeURIComponent(code)}`;
+    async function verifierCode(codeGagnant, numeroJoueur) {
+    const url = `${URL_APPS_SCRIPT}?code=${codeGagnant}&numero=${numeroJoueur}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+}
 
     try {
     const response = await fetch(url, {
