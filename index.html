@@ -329,6 +329,10 @@
     try {
         const response = await fetch(url);
         const data = await response.json();
+        if(data.error) {
+            erreurDiv.textContent = data.msg;
+            return;
+        }
 
         if(data.valide) {
             document.getElementById('ecranCode').style.display = 'none';
